@@ -3,6 +3,6 @@
 
 <a
   href="/login"
-  class="btn btn-primary flex h-screen justify-center content-center"
+  class="btn btn-primary flex justify-center content-center h-screen"
   >Get Started</a
 >
