@@ -1,8 +1,9 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged, type User } from "firebase/auth";
 import { getStorage } from "firebase/storage";
+import { writable } from "svelte/store";
 
 // import { initializeApp } from "firebase/app";
 // import { getAnalytics } from "firebase/analytics";
@@ -30,3 +31,40 @@ export const app = initializeApp(firebaseConfig);
 export const db = getFirestore();
 export const auth = getAuth();
 export const storage = getStorage();
+
+/**
+ * @returns a store with the current firebase user
+ */
+function userStore() {
+  let unsubscribe: () => void;
+
+  // sets store to null when client sdk is not avaialble
+  // like when rendered on the server
+  if (!auth || !globalThis.window) {
+    console.warn("Auth is not initialized or not in browser");
+    const { subscribe } = writable<User | null>(null);
+    return {
+      subscribe,
+    };
+  }
+
+  // Creates new writable store and destructure its built in subscribe method
+  // Default value currentUser or null
+  // callback containing set function, that allows to change value of store
+  // updates current user in the svelte store whenever value changes
+  const { subscribe } = writable(auth?.currentUser ?? null, (set) => {
+    unsubscribe = onAuthStateChanged(auth, (user) => {
+      set(user);
+    });
+    // calls unsubscribe when the store no longer has any
+    // subscribers by returning it in body of the function
+    // to unsubscribe from auth, especially important when
+    // dealing with firestore database data
+    return () => unsubscribe();
+  });
+  return {
+    subscribe,
+  };
+}
+
+export const user = userStore();
