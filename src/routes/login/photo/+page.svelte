@@ -45,7 +45,7 @@
         name="photoURL"
         type="file"
         class="file-input file-input-bordered w-full max-w-xs"
-        accept="image/png, image/jpeg. image/gif, image/webp"
+        accept="image/png, image/jpeg, image/gif, image/webp"
       />
       {#if uploading}
         <p>Uploading...</p>
