@@ -49,7 +49,7 @@
       links: [
         {
           title: "Test Link",
-          url: "https:kung.foo",
+          url: "https://kung.foo",
           icon: "custom",
         },
       ],
