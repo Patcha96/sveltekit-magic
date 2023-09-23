@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import SortableList from "$lib/components/SortableList.svelte";
   import UserLink from "$lib/components/UserLink.svelte";
   import { db, userData, user } from "$lib/firebase";
   import {
@@ -34,6 +35,12 @@
   $: titleIsValid = $formData.title.length < 20 && $formData.title.length > 0;
   $: formIsValid = urlIsValid && titleIsValid;
 
+  function sortList(e: CustomEvent) {
+    const newList = e.detail;
+    const userRef = doc(db, "users", $user!.uid);
+    setDoc(userRef, { links: newList }, { merge: true });
+  }
+
   async function addLink(e: SubmitEvent) {
     const userRef = doc(db, "users", $user!.uid);
 
@@ -44,11 +51,7 @@
       }),
     });
 
-    formData.set({
-      icon: "",
-      title: "",
-      url: "",
-    });
+    formData.set(formDefaults);
 
     showForm = false;
   }
@@ -72,7 +75,16 @@
       Edit your profile
     </h1>
 
-    <!-- INSERT sortable list here -->
+    <SortableList list={$userData?.links} on:sort={sortList} let:item let:index>
+      <div class="group relative">
+        <UserLink {...item} />
+        <button
+          on:click={() => deleteLink(item)}
+          class="btn btn-xs btn-error invisible group-hover:visible transition-all absolute -right-6 bottom-10"
+          >Delete</button
+        >
+      </div>
+    </SortableList>
 
     {#if showForm}
       <form
