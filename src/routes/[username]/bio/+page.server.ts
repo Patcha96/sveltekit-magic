@@ -1,26 +1,27 @@
 import type { PageServerLoad } from "./$types";
-import { adminAuth, adminDB } from "$lib/server/admin";
-import { error } from "@sveltejs/kit";
+import { adminDB } from "$lib/server/admin";
+import { error, redirect } from "@sveltejs/kit";
 
-export const load = (async ({ cookies }) => {
-  const sessionCookie = cookies.get("__session");
+export const load = (async ({ locals, params }) => {
+  console.log("why is it missing", locals.userID);
+  const uid = locals.userID;
+  console.log("why is it missing2", uid);
 
-  try {
-    const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie!);
-    const userDoc = await adminDB
-      .collection("users")
-      .doc(decodedClaims.uid)
-      .get();
-    const userData = userDoc.data();
-
-    return {
-      bio: userData?.bio,
-    };
-  } catch (e) {
-    console.log(e);
+  if (!uid) {
     // either redirect or render an error page
     // to notify customer its an unauthorized request
     // redirect(301, '/login');
+    //throw redirect(301, "/login");
     throw error(401, "Unauthorized request!");
   }
+  const userDoc = await adminDB.collection("users").doc(uid).get();
+  const { username, bio } = userDoc.data()!;
+
+  if (params.username !== username) {
+    throw error(401, "That username does not belong to you");
+  }
+  console.log(bio);
+  return {
+    bio,
+  };
 }) satisfies PageServerLoad;
