@@ -3,9 +3,7 @@ import { adminDB } from "$lib/server/admin";
 import { error, redirect, type Actions, fail } from "@sveltejs/kit";
 
 export const load = (async ({ locals, params }) => {
-  console.log("why is it missing", locals.userID);
   const uid = locals.userID;
-  console.log("why is it missing2", uid);
 
   if (!uid) {
     // either redirect or render an error page
@@ -20,7 +18,6 @@ export const load = (async ({ locals, params }) => {
   if (params.username !== username) {
     throw error(401, "That username does not belong to you");
   }
-  console.log(bio);
   return {
     bio,
   };

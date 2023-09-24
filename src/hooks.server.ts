@@ -9,8 +9,6 @@ export const handle = (async ({ event, resolve }) => {
     // sets userID on the event locals object
     // to easily access it from any other server.ts file
     event.locals.userID = decodedClaims.uid;
-    console.log("found user id", decodedClaims.uid);
-    console.log("locals object set to", event.locals.userID);
   } catch (e) {
     event.locals.userID = null;
     return resolve(event);
